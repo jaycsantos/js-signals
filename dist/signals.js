@@ -357,10 +357,11 @@
         /**
          * Dispatch/Broadcast Signal to all listeners added to the queue.
          * @param {...*} [params] Parameters that should be passed to each handler.
+         * @return {Boolean} True if none stopped propagation or returned false.
          */
         dispatch : function (params) {
             if (! this.active) {
-                return;
+                return false;
             }
 
             var paramsArr = Array.prototype.slice.call(arguments),
@@ -373,7 +374,7 @@
 
             if (! n) {
                 //should come after memorize
-                return;
+                return false;
             }
 
             bindings = this._bindings.slice(); //clone array in case add/remove items during dispatch
@@ -382,6 +383,7 @@
             //execute all callbacks until end of the list or until a callback returns `false` or stops propagation
             //reverse loop since listeners with higher priority will be added at the end of the list
             do { n--; } while (bindings[n] && this._shouldPropagate && bindings[n].execute(paramsArr) !== false);
+            return n === 0 && ! this._shouldPropagate;
         },
 
         /**
